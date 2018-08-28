@@ -1,6 +1,4 @@
 
-#execfile('/home/amber/gimp/snakec.py')
-
 from math import sin, cos, radians
 from random import randrange, choice
 from time import sleep
@@ -138,7 +136,7 @@ def ca():
     except:
 	print "close all failed"
 
-def load_sprites(fn='/home/amber/gimp/farmer_sprite.png'):
+def load_sprites(fn='snake_sprite.png'):
     image = gimp.image_list()[0]
     if not pdb.gimp_image_get_layer_by_name(image, 'sprites'):
 	    layer = pdb.gimp_file_load_layer(image, fn)
