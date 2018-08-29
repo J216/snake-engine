@@ -1,22 +1,24 @@
 
+#execfile('/home/amber/gimp/snakec.py')
+
 from math import sin, cos, radians
 from random import randrange, choice
 from time import sleep
 
 
 class Engine:
-    engine_types=[[3,7]]
     def __init__(self, location=[-1,-1], engine_type=-1):
         self.location = location
         if engine_type == -1:
-            self.item_type = choice(self.engine_types)
+            self.item_type = choice([0])
         else:
-            self.item_type = self.engine_types[engine_type]
+            self.item_type = engine_type
 
 class Snake:
-    def __init__(self, location=[-1,-1], snake_type=0):
+    def __init__(self, location=[-1,-1],name='Snake', snake_type=0):
         self.location = location
         self.plocation = location
+        self.name = name
         self.engines_ate = 0
         self.heading = 0
         if snake_type == -1:
@@ -95,8 +97,8 @@ class World:
         self.engines.append(e)
         self.blocked.append(e.location)
 
-    def add_snake(self, coord):
-        s = Snake(coord)
+    def add_snake(self, coord, name):
+        s = Snake(coord, name)
         self.snakes.append(s)
         
     def snake_on_engine(self):
@@ -136,8 +138,8 @@ def ca():
     except:
 	print "close all failed"
 
-def load_sprites(fn='snake_sprite.png'):
-    image = gimp.image_list()[0]
+def load_sprites(fn='/home/amber/gimp/snake_sprite.png'):
+    global image
     if not pdb.gimp_image_get_layer_by_name(image, 'sprites'):
 	    layer = pdb.gimp_file_load_layer(image, fn)
 	    layer.name ='sprites'
@@ -148,7 +150,7 @@ def load_sprites(fn='snake_sprite.png'):
 	    return False
 
 def load_layer(layer_type='un-named!!!', opacity=100):
-    image = gimp.image_list()[0]
+    global image
     if not pdb.gimp_image_get_layer_by_name(image, layer_type):
 	    layer = pdb.gimp_layer_new(image, image.width, image.height, 1, layer_type, opacity, 0)
 	    pdb.gimp_image_add_layer(image, layer, 0)
@@ -167,7 +169,7 @@ def load_layer(layer_type='un-named!!!', opacity=100):
 	    return False
 
 def paint_tile(loc,paint=[0,0],layer_type='environ'):
-    image = gimp.image_list()[0]
+    global image
     sprite_layer = pdb.gimp_image_get_layer_by_name(image, "sprites")
     pdb.gimp_image_set_active_layer(image, sprite_layer)
     pdb.gimp_image_select_rectangle(image, 2, paint[0]*32, paint[1]*32, 32, 32)
@@ -182,7 +184,7 @@ def paint_tile(loc,paint=[0,0],layer_type='environ'):
     pdb.gimp_selection_none(image)
 
 def clear_tile(loc,layer_type='environ'):
-    image = gimp.image_list()[0]
+    global image
     edit_layer = pdb.gimp_image_get_layer_by_name(image, layer_type)
     pdb.gimp_image_set_active_layer(image, edit_layer)
     pdb.gimp_image_select_rectangle(image, 2, loc[0]*32, loc[1]*32, 32, 32)
@@ -202,27 +204,48 @@ def paint_environ(environ_in,blur=1):
 	    pdb.plug_in_gauss(image, drawable, 30, 30, 0)
 
 def paint_engines(engines):
+    engine_types=[[0,3]]
     for e in engines:
-	    paint_tile(e.location, e.item_type, 'engines')
+	    paint_tile(e.location, engine_types[e.item_type], 'engines')
 
 def paint_snakes(snakes):
-    snake_types=[[1,7],[2,7]]
+    snake_types=[[1,2],[2,2]]
     for snake in snakes:
 	    clear_tile(snake.plocation, 'snakes')
 	    paint_tile(snake.location, snake_types[snake.item_type], 'snakes')
-	    pdb.gimp_displays_flush()
 
-def paint_hud(score=0):
-    image = gimp.image_list()[0]
-    hud_layer = pdb.gimp_image_get_layer_by_name(image, 'hud')
+
+def paint_text(location=[10,10], size = 16, text="Default!@$#", clear=0, text_layer= 'hud', color=(255,0,0) ):
+    global image
+    hud_layer = pdb.gimp_image_get_layer_by_name(image, text_layer)
     pdb.gimp_image_set_active_layer(image, hud_layer)
     drawable = pdb.gimp_image_active_drawable(image)
-    pdb.gimp_selection_all(image)
-    pdb.gimp_edit_clear(drawable)
-    pdb.gimp_selection_none(image)
-    pdb.gimp_context_set_foreground((255,0,0))
-    text_layer = pdb.gimp_text_fontname(image, drawable, 10, 10, 'Score: '+str(score), 0, 0, 16, 1, 'Sans Bold')
+    if clear:
+        pdb.gimp_selection_all(image)
+        pdb.gimp_edit_clear(drawable)
+        pdb.gimp_selection_none(image)
+    pdb.gimp_context_set_foreground(color)
+    text_layer = pdb.gimp_text_fontname(image, drawable, location[0], location[1], text, 0, 0, size, 1, 'Sans Bold')
     pdb.gimp_floating_sel_anchor(text_layer)
+
+
+def paint_hud(snakes=[]):
+    score_row = 0
+    for s in snakes:
+        paint_text([10, score_row*24+10], 16, 'Snake'+str(score_row+1)+': '+str(s.engines_ate), score_row==0)
+        score_row += 1
+
+def make_animation(ms=250):
+    global image
+    global animation
+    non_empty = pdb.gimp_edit_copy_visible(image)
+    layer = pdb.gimp_layer_new(animation, image.width, image.height, 1, 'frame '+str(pdb.gimp_image_get_layers(animation)[0]+1)+'('+str(ms)+' ms)', 100, 0)
+    pdb.gimp_image_add_layer(animation, layer, 0)
+    pdb.gimp_item_set_visible(layer, 1)
+    pdb.gimp_image_set_active_layer(animation, layer)
+    drawable = pdb.gimp_image_active_drawable(animation)
+    floating_sel = pdb.gimp_edit_paste(drawable, True)
+    pdb.gimp_floating_sel_anchor(floating_sel)
 
 def load_layers():
     load_sprites()
@@ -240,13 +263,18 @@ if __name__ == '__main__':
     game_score=0
     blur=1
     size=256
-    engines=12
-    snakes=1
+    engines=20
+    snakes=6
     snake_moves=145
-    snake_delay=.1
+    snake_delay=0
+    animate=1
+    export_gif=1
     
     ca()
+    if animate:
+        animation = imageSetup(size,size)
     image = imageSetup(size,size)
+
     load_layers()
     
     
@@ -260,21 +288,35 @@ if __name__ == '__main__':
 
     paint_engines(w.engines)
     
+    snake_pos = 0
+    for i in range(snakes):
+        w.add_snake([(w.width/2+snake_pos)-snakes/2,w.height/2],'Snake '+str(snake_pos+1))
+        snake_pos += 1
 
-    w.add_snake([w.width/2,w.height/2])
-    w.add_snake([w.width/2,w.height/2+1])
     paint_snakes(w.snakes)
 
     while not len(w.engines) == 0:
         for s in w.snakes:
             clear_tile(s.location, 'snakes')
             game_score += s.forward(w.blocked, w.width, w.height, w.engines)
-            s.turn( choice([-45,45]))
+            s.turn( choice([-90,0,0,90,180]))
             paint_snakes([s])
-            paint_hud(game_score)
+            paint_hud(w.snakes)
             if w.snake_on_engine():
                 clear_tile(s.location, 'engines')
+                pdb.gimp_displays_flush()
+            if animate:
+                make_animation()
             sleep(snake_delay)
-
-
-
+    if animate:
+        make_animation()
+    winner = w.snakes[0]
+    for s in w.snakes:
+        if s.engines_ate > winner.engines_ate:
+            winner = s
+            
+    paint_text(location=[image.width/10,image.height/2], size=24, text=winner.name+" WINS!!!", clear=0, text_layer= 'hud', color=(0,255,255) )
+    pdb.gimp_displays_flush()
+    
+    if animate:
+                make_animation()
