@@ -259,51 +259,43 @@ def load_layers():
 ## MAIN METHOD        ###
 #########################
 
-if __name__ == '__main__':
-    game_score=0
-    blur=1
-    size=256
-    engines=20
-    snakes=6
-    snake_moves=145
-    snake_delay=0
-    animate=1
-    export_gif=1
+def snake_world(game_score=0,blur=1,size=256,engines=20,snakes=6,snake_moves=145,snake_delay=0,animate=0):
+
     
     ca()
     if animate:
         animation = imageSetup(size,size)
-    image = imageSetup(size,size)
+    #image = imageSetup(size,size)
 
-    load_layers()
+    #load_layers()
     
     
-    w = World(image.width/32, image.height/32)
+    w = World(size/32, size/32)
     w.create_environ()
-    paint_environ(w.environ, blur)
+    #paint_environ(w.environ, blur)
     
     for i in range(engines):
         eng_loc = w.find_random_open()
         w.add_engine(eng_loc)
 
-    paint_engines(w.engines)
+    #paint_engines(w.engines)
     
     snake_pos = 0
     for i in range(snakes):
         w.add_snake([(w.width/2+snake_pos)-snakes/2,w.height/2],'Snake '+str(snake_pos+1))
         snake_pos += 1
 
-    paint_snakes(w.snakes)
+    #paint_snakes(w.snakes)
 
     while not len(w.engines) == 0:
         for s in w.snakes:
-            clear_tile(s.location, 'snakes')
+            #clear_tile(s.location, 'snakes')
             game_score += s.forward(w.blocked, w.width, w.height, w.engines)
             s.turn( choice([-90,0,0,90,180]))
-            paint_snakes([s])
-            paint_hud(w.snakes)
-            if w.snake_on_engine():
-                clear_tile(s.location, 'engines')
+            #paint_snakes([s])
+            #paint_hud(w.snakes)
+            #if w.snake_on_engine():
+                #clear_tile(s.location, 'engines')
             if animate:
                 make_animation()
             sleep(snake_delay)
@@ -314,7 +306,11 @@ if __name__ == '__main__':
         if s.engines_ate > winner.engines_ate:
             winner = s
             
-    paint_text(location=[image.width/10,image.height/2], size=24, text=winner.name+" WINS!!!", clear=0, text_layer= 'hud', color=(0,255,255) )
-    
+    #paint_text(location=[image.width/10,image.height/2], size=24, text=winner.name+" WINS!!!", clear=0, text_layer= 'hud', color=(0,255,255) )
+    print(winner.name+" WINS!!!")
     if animate:
                 make_animation()
+
+if __name__ == '__main__':
+    for i in range(10):
+        snake_world()
