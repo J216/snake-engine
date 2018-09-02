@@ -138,7 +138,7 @@ def ca():
     except:
 	print "close all failed"
 
-def load_sprites(fn='/home/amber/gimp/snake_sprite.png'):
+def load_sprites(fn='/home/alex/gimp/snake-engine/snake_sprite.png'):
     global image
     if not pdb.gimp_image_get_layer_by_name(image, 'sprites'):
 	    layer = pdb.gimp_file_load_layer(image, fn)
@@ -304,7 +304,6 @@ if __name__ == '__main__':
             paint_hud(w.snakes)
             if w.snake_on_engine():
                 clear_tile(s.location, 'engines')
-                pdb.gimp_displays_flush()
             if animate:
                 make_animation()
             sleep(snake_delay)
@@ -316,7 +315,6 @@ if __name__ == '__main__':
             winner = s
             
     paint_text(location=[image.width/10,image.height/2], size=24, text=winner.name+" WINS!!!", clear=0, text_layer= 'hud', color=(0,255,255) )
-    pdb.gimp_displays_flush()
     
     if animate:
                 make_animation()
