@@ -218,7 +218,7 @@ def paint_hud(image,snakes=[]):
 
 def make_animation(image, animation,ms=70,):
     non_empty = pdb.gimp_edit_copy_visible(image)
-    layer = pdb.gimp_layer_new(animation, image.width, image.height, 1, 'frame '+str(pdb.gimp_image_get_layers(animation)[0]+1)+'('+str(ms)+' ms)', 100, 0)
+    layer = pdb.gimp_layer_new(animation, image.width, image.height, 1, 'frame '+str(pdb.gimp_image_get_layers(animation)[0]+1)+'('+str(ms)+'ms)', 100, 0)
     pdb.gimp_image_add_layer(animation, layer, 0)
     pdb.gimp_item_set_visible(layer, 1)
     pdb.gimp_image_set_active_layer(animation, layer)
