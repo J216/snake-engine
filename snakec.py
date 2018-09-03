@@ -1,10 +1,10 @@
 
-#execfile('/home/amber/gimp/snakec.py')
+#execfile('~/gimp/snake-engine/snakec.py')
 
 from math import sin, cos, radians
 from random import randrange, choice
 from time import sleep
-
+import os
 
 class Engine:
     def __init__(self, location=[-1,-1], engine_type=-1):
@@ -127,9 +127,9 @@ def ca():
     except:
         print("close all failed")
 
-def load_sprites(image, fn='/home/alex/gimp/snake-engine/snake_sprite.png'):
+def load_sprites(image, fn='~/gimp/snake-engine/snake_sprite.png'):
     if not pdb.gimp_image_get_layer_by_name(image, 'sprites'):
-        layer = pdb.gimp_file_load_layer(image, fn)
+        layer = pdb.gimp_file_load_layer(image, os.path.expanduser(fn))
         layer.name ='sprites'
         pdb.gimp_image_add_layer(image, layer, 0)
         pdb.gimp_item_set_visible(layer, 0)
