@@ -268,12 +268,13 @@ def snake_world(blur=1,size=8,engines=20,snakes=6,snake_delay=0,animate=1):
             s.forward(w.blocked, w.width, w.height, w.engines)
             s.turn( choice([-90,0,0,90,180]))
             paint_snakes(image, [s])
-            paint_hud(image,w.snakes)
             if w.snake_on_engine():
                 clear_tile(image, s.location, 'engines')
             pdb.gimp_displays_flush()
+        paint_hud(image,w.snakes)
         if animate:
             make_animation(image, animation)
+
     winner = w.snakes[0]
     for s in w.snakes:
         if s.engines_ate > winner.engines_ate:
