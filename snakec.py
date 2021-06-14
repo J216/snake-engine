@@ -1,5 +1,5 @@
 
-#execfile('~/gimp/snake-engine/snakec.py')
+#execfile('./snakec.py')
 
 from math import sin, cos, radians
 from random import randrange, choice
@@ -127,7 +127,7 @@ def ca():
     except:
         print("close all failed")
 
-def load_sprites(image, fn='~/gimp/snake-engine/snake_sprite.png'):
+def load_sprites(image, fn='./snake_sprite.png'):
     if not pdb.gimp_image_get_layer_by_name(image, 'sprites'):
         layer = pdb.gimp_file_load_layer(image, os.path.expanduser(fn))
         layer.name ='sprites'
